@@ -75,9 +75,12 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     double playbackDuration = playbackManager.playbackDuration;
     double playbackPosition = playbackManager.playbackPosition;
 
+    String titleText =
+        playbackManager.isPlaying ? '${playbackManager.currentFileName}' : 'tunescape';
+
     return Scaffold(
         appBar: AppBar(
-          title: const Text('TuneScape'),
+          title: Text(titleText),
           actions: [IconButton(icon: const Icon(Icons.add), onPressed: () {})],
         ),
         drawer: createDrawer(context),
@@ -183,10 +186,20 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     return Drawer(
       child: ListView(
         children: [
-          DrawerHeader(
-            child: Text('TuneScape'),
-            decoration: BoxDecoration(color: Colors.red[900]),
-          ),
+          const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.black,
+              ),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text(
+                  'tunescape',
+                  style: TextStyle(fontSize: 32, color: Colors.red),
+                ),
+                Text(
+                  "0.1.1a",
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                )
+              ])),
           ListTile(
             title: Text('Open audio file'),
             onTap: () {
@@ -259,6 +272,19 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
   }
 
   Widget createPlaylistView(BuildContext context) {
+    if (playbackManager.isEmpty) {
+      return Expanded(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('( ˘･з･) '),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Expanded(
       child: ListView.builder(
         itemCount: playbackManager.playlist.length,

@@ -68,6 +68,11 @@ class PlaybackManager {
       return;
     }
 
+    if (currentPlaylistItemIndex == index) {
+      togglePlayback();
+      return;
+    }
+
     currentPlaylistItemIndex = index;
     await playFile(playlist[index], addToPlaylist: false);
   }
