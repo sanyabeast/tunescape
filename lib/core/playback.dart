@@ -2,16 +2,27 @@ import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tunescape/core/state.dart';
 import 'package:tunescape/core/tools.dart';
 
 class PlaybackManager {
+  PlaybackManager() {
+    volume = preferences.getOrDefault('volume', 0.5);
+    shuffle = preferences.getOrDefault('shuffle', false);
+  }
+
   final AudioPlayer _player = AudioPlayer();
 
   static final PlaybackManager _instance = PlaybackManager();
   static PlaybackManager get instance => _instance;
 
-  double get volume => _player.volume;
-  set volume(double value) => _player.setVolume(clampDouble(value, 0, 1));
+  double _volume = 0.5;
+  double get volume => _volume;
+  set volume(double value) {
+    preferences.set('volume', value);
+    _volume = clampDouble(value, 0, 1);
+    _player.setVolume(_volume);
+  }
 
   LoopMode get loopMode => _player.loopMode;
   set loopMode(LoopMode value) => _player.setLoopMode(value);
@@ -20,7 +31,12 @@ class PlaybackManager {
 
   bool get isPlaying => _player.playing;
 
-  bool shuffle = false;
+  bool _shuffle = false;
+  bool get shuffle => _shuffle;
+  set shuffle(bool value) {
+    _shuffle = value;
+    preferences.set('shuffle', value);
+  }
 
   bool get isEmpty => playlist.isEmpty;
   bool get isSingle => playlist.length == 1;
@@ -29,7 +45,7 @@ class PlaybackManager {
   double get playbackPosition => _player.position?.inSeconds?.toDouble() ?? 0.0;
 
   bool get isMuted => _player.volume <= 0.0;
-  set isMuted(bool value) => _player.setVolume(value ? 0.0 : 1.0);
+  set isMuted(bool value) => {_player.setVolume(value ? 0.0 : volume)};
 
   set progress(double progress) {
     seek(progress * playbackDuration);
