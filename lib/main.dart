@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tunescape/core/playback.dart';
 import 'package:tunescape/core/state.dart';
 import 'package:tunescape/widget/player.dart';
 import 'package:desktop_window/desktop_window.dart';
@@ -9,6 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await preferences.init();
   await themeManager.init();
+  await PlaybackManager.instance.init();
   await DesktopWindow.setMinWindowSize(const Size(800, 600));
   runApp(TuneScape());
 }

@@ -17,7 +17,6 @@ class MusicPlayer extends StatefulWidget {
 
 class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin {
   PlaybackManager playbackManager = PlaybackManager.instance;
-  final AudioPlayer _player = AudioPlayer();
 
   late AnimationController _ticker;
 
@@ -88,8 +87,8 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
 
   @override
   void dispose() {
-    _player.dispose();
     _ticker.dispose();
+    playbackManager.dispose();
     super.dispose();
   }
 

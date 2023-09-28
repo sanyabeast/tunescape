@@ -131,12 +131,10 @@ class _PlaybackWidgetState extends State<PlaybackWidget> {
         IconButton(
             icon: Icon(playbackManager.shuffle ? Icons.shuffle_on : Icons.shuffle),
             iconSize: 24,
-            onPressed: playbackManager.isEmpty || playbackManager.isSingle
-                ? null
-                : () {
-                    playbackManager.shuffle = !playbackManager.shuffle;
-                    setState(() {});
-                  }),
+            onPressed: () {
+              playbackManager.shuffle = !playbackManager.shuffle;
+              setState(() {});
+            }),
         IconButton(
             icon: Icon(
                 playbackManager.isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline),
@@ -150,12 +148,10 @@ class _PlaybackWidgetState extends State<PlaybackWidget> {
         IconButton(
             icon: getLoopModeIcon(playbackManager.loopMode),
             iconSize: 24,
-            onPressed: playbackManager.isEmpty
-                ? null
-                : () {
-                    playbackManager.nextLoopMode();
-                    setState(() {});
-                  }),
+            onPressed: () {
+              playbackManager.nextLoopMode();
+              setState(() {});
+            }),
         IconButton(
             icon: const Icon(Icons.skip_next),
             iconSize: 24,

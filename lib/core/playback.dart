@@ -24,9 +24,7 @@ class PlaybackManager {
     _player.setVolume(_volume);
   }
 
-  LoopMode get loopMode => _player.loopMode;
-  set loopMode(LoopMode value) => _player.setLoopMode(value);
-
+  LoopMode loopMode = LoopMode.all;
   double volumeStep = 0.1;
 
   bool get isPlaying => _player.playing;
@@ -62,10 +60,75 @@ class PlaybackManager {
 
   int currentPlaylistItemIndex = 0;
 
-  playFile(String filePath, {bool addToPlaylist = true}) async {
-    if (_player.playing) {
-      await _player.stop();
+  init() async {
+    _player.processingStateStream.listen((event) {
+      if (event == ProcessingState.completed) {
+        _handleTrackCompleted();
+      }
+    });
+
+    _player.sequenceStateStream.listen((event) {
+      print("PlaybackManager: sequenceStateStream: $event");
+    });
+
+    // _player.durationStream.listen((event) {
+    //   print("PlaybackManager: durationStream: $event");
+    // });
+
+    // _player.positionStream.listen((event) {
+    //   print("PlaybackManager: positionStream: $event");
+    // });
+
+    _player.playerStateStream.listen((event) {
+      if (event.processingState == ProcessingState.completed) {
+        _handleTrackCompleted();
+      }
+    });
+
+    _player.currentIndexStream.listen((event) {
+      print("PlaybackManager: currentIndexStream: $event");
+    });
+
+    _player.loopModeStream.listen((event) {
+      print("PlaybackManager: loopModeStream: $event");
+    });
+
+    _player.play();
+    await _player.stop();
+  }
+
+  _handleTrackCompleted() {
+    print("PlaybackManager: _handleTrackCompleted");
+    switch (loopMode) {
+      case LoopMode.off:
+        if (currentPlaylistItemIndex < playlist.length - 1) {
+          print("PlaybackManager: playNext");
+          playNext();
+        } else {
+          print("PlaybackManager: none");
+        }
+        break;
+      case LoopMode.one:
+        print("PlaybackManager: replay");
+        replay();
+        break;
+      case LoopMode.all:
+        print("PlaybackManager: playNext");
+        playNext();
+        break;
     }
+  }
+
+  dispose() {
+    print("PlaybackManager: dispose");
+    _player.stop();
+    _player.dispose();
+  }
+
+  playFile(String filePath, {bool addToPlaylist = true}) async {
+    await _player.stop();
+
+    print("PlaybackManager: prepare to play $filePath");
 
     currentFilePath = filePath;
 
@@ -79,13 +142,17 @@ class PlaybackManager {
     await _player.setVolume(volume);
   }
 
+  replay() async {
+    await playFile(playlist[currentPlaylistItemIndex], addToPlaylist: false);
+  }
+
   setPlaylistIndex(int index) async {
     if (index < 0 || index >= playlist.length) {
       return;
     }
 
     if (currentPlaylistItemIndex == index) {
-      togglePlayback();
+      await togglePlayback();
       return;
     }
 
@@ -94,6 +161,10 @@ class PlaybackManager {
   }
 
   playNext() async {
+    if (playlist.length == 1) {
+      await replay();
+      return;
+    }
     int newIndex = shuffle
         ? getRandomIntExclude(0, playlist.length, currentPlaylistItemIndex)
         : currentPlaylistItemIndex + 1;
@@ -102,6 +173,11 @@ class PlaybackManager {
   }
 
   playPrevious() async {
+    if (playlist.length == 1) {
+      await replay();
+      return;
+    }
+
     int newIndex = shuffle
         ? getRandomIntExclude(0, playlist.length, currentPlaylistItemIndex)
         : currentPlaylistItemIndex - 1 + playlist.length;
@@ -137,24 +213,20 @@ class PlaybackManager {
     await _player.setVolume(_player.volume - volumeStep);
   }
 
-  dispose() async {
-    await _player.dispose();
-  }
-
   seek(double position) async {
     await _player.seek(Duration(seconds: position.toInt()));
   }
 
   nextLoopMode() {
-    switch (_player.loopMode) {
-      case LoopMode.off:
-        _player.setLoopMode(LoopMode.one);
+    switch (loopMode) {
+      case LoopMode.all:
+        loopMode = LoopMode.one;
         break;
       case LoopMode.one:
-        _player.setLoopMode(LoopMode.all);
+        loopMode = LoopMode.off;
         break;
-      case LoopMode.all:
-        _player.setLoopMode(LoopMode.off);
+      case LoopMode.off:
+        loopMode = LoopMode.all;
         break;
     }
   }
@@ -168,14 +240,4 @@ class PlaybackManager {
     currentPlaylistItemIndex = 0;
     playFile(playlist.first, addToPlaylist: false);
   }
-
-  Stream<Duration?> get positionStream => _player.positionStream;
-
-  Stream<Duration?> get durationStream => _player.durationStream;
-
-  Stream<ProcessingState?> get processingStateStream => _player.processingStateStream;
-
-  Stream<SequenceState?> get sequenceStateStream => _player.sequenceStateStream;
-
-  Stream<LoopMode?> get loopModeStream => _player.loopModeStream;
 }
