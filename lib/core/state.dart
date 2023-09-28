@@ -1,13 +1,89 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const double leftSectionWidth = 300;
+const double leftSectionWidth = 360;
 const double bottomSectionHeight = 150;
 const int _saveDebounceTimeout = 5;
 
-class Preferences {
+const supportedAudiofileExtensions = [
+  "mp3",
+  "m4a",
+  "aac",
+  "wav",
+  "flac",
+  "ogg",
+  "oga",
+];
+
+const supportedPlaylistExtensions = ["m3u8"];
+
+class TsColorScheme {
+  late MaterialColor swatch;
+  late MaterialAccentColor accent;
+  TsColorScheme(this.swatch, this.accent);
+}
+
+List<TsColorScheme> accentColors = [
+  TsColorScheme(Colors.red, Colors.redAccent),
+  TsColorScheme(Colors.orange, Colors.orangeAccent),
+  TsColorScheme(Colors.amber, Colors.amberAccent),
+  TsColorScheme(Colors.yellow, Colors.yellowAccent),
+  TsColorScheme(Colors.lime, Colors.limeAccent),
+  TsColorScheme(Colors.green, Colors.greenAccent),
+  TsColorScheme(Colors.teal, Colors.tealAccent),
+  TsColorScheme(Colors.cyan, Colors.cyanAccent),
+  TsColorScheme(Colors.blue, Colors.blueAccent),
+  TsColorScheme(Colors.indigo, Colors.indigoAccent),
+  TsColorScheme(Colors.purple, Colors.purpleAccent),
+  TsColorScheme(Colors.pink, Colors.pinkAccent),
+
+  // ... add more colors here
+];
+
+// Sort the colors based on their hue
+
+class TsThemeManager {
+  int colorSchemeIndex = 0;
+
+  TsColorScheme get colors => accentColors[colorSchemeIndex];
+
+  setColorScheme(TsColorScheme colors) {
+    colorSchemeIndex = accentColors.indexOf(colors);
+    accentColorNotifier.colors = colors;
+  }
+
+  setColorSchemeIndex(int index) {
+    colorSchemeIndex = index;
+    accentColorNotifier.colors = colors;
+    preferences.set('colorSchemeIndex', index);
+  }
+
+  init() {
+    setColorSchemeIndex(preferences.getOrDefault('colorSchemeIndex', 0));
+  }
+
+  reset() {
+    setColorSchemeIndex(0);
+  }
+}
+
+class AccentColorNotifier with ChangeNotifier {
+  TsColorScheme _colors = accentColors.first; // Default color
+
+  TsColorScheme get colors => _colors;
+
+  set colors(TsColorScheme color) {
+    _colors = color;
+    notifyListeners();
+  }
+}
+
+final accentColorNotifier = AccentColorNotifier();
+
+class TsPreferences {
   late SharedPreferences _prefs;
   Map<String, dynamic> _data = {};
   bool _unsaved = false;
@@ -23,7 +99,7 @@ class Preferences {
       return;
     }
 
-    print("Preferences: setting $key to $value");
+    print("TsPreferences: setting $key to $value");
 
     _data[key] = value;
     _unsaved = true;
@@ -55,7 +131,7 @@ class Preferences {
   }
 
   _save() async {
-    print("Preferences: saving - ${jsonEncode(_data)}");
+    print("TsPreferences: saving - ${jsonEncode(_data)}");
     await _prefs.setString('tunescape', jsonEncode(_data));
   }
 
@@ -63,16 +139,23 @@ class Preferences {
     var data = _prefs.getString('tunescape');
     if (data != null) {
       _data = jsonDecode(data);
-      print("Preferences: loaded - ${jsonEncode(_data)}");
+      print("TsPreferences: loaded - ${jsonEncode(_data)}");
     }
+  }
+
+  reset() {
+    _data = {};
+    _unsaved = true;
+    save();
   }
 
   tick() {
     if (_unsaved) {
-      print("Preferences: tick, unsaved state detected");
+      print("TsPreferences: tick, unsaved state detected");
       save();
     }
   }
 }
 
-Preferences preferences = Preferences();
+TsThemeManager themeManager = TsThemeManager();
+TsPreferences preferences = TsPreferences();

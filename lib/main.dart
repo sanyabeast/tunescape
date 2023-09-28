@@ -8,29 +8,58 @@ GlobalKey playerState = GlobalKey();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await preferences.init();
+  await themeManager.init();
   await DesktopWindow.setMinWindowSize(const Size(800, 600));
-  runApp(const TuneScape());
+  runApp(TuneScape());
 }
 
-class TuneScape extends StatelessWidget {
-  const TuneScape({super.key});
+class TuneScape extends StatefulWidget {
+  TuneScape({super.key});
+
+  @override
+  State<TuneScape> createState() => _TuneScapeState();
+}
+
+class _TuneScapeState extends State<TuneScape> {
+  MaterialColor _swatchColor = accentColorNotifier.colors.swatch;
+  MaterialAccentColor _accentColor = accentColorNotifier.colors.accent;
+
+  @override
+  void initState() {
+    super.initState();
+    accentColorNotifier.addListener(_updateAccentColor);
+  }
+
+  _updateAccentColor() {
+    setState(() {
+      _swatchColor = accentColorNotifier.colors.swatch;
+      _accentColor = accentColorNotifier.colors.accent;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'TuneScape',
       theme: ThemeData(
-        brightness: Brightness.dark,
         useMaterial3: true,
         colorScheme: ColorScheme.fromSwatch(
           brightness: Brightness.dark,
-          cardColor: const Color.fromARGB(255, 25, 25, 25),
-          backgroundColor: const Color.fromARGB(255, 25, 25, 25),
-          primarySwatch: Colors.red,
-          accentColor: Colors.redAccent,
+          cardColor: const Color.fromARGB(255, 10, 10, 10),
+          backgroundColor: const Color.fromARGB(255, 10, 10, 10),
+          primarySwatch: _swatchColor,
+          accentColor: _accentColor,
+          primaryColorDark: Colors.black,
+          errorColor: Colors.red,
         ),
       ),
       home: MusicPlayer(key: playerState),
     );
+  }
+
+  @override
+  void dispose() {
+    accentColorNotifier.removeListener(_updateAccentColor);
+    super.dispose();
   }
 }

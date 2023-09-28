@@ -6,6 +6,7 @@ import 'package:tunescape/core/playlist.dart';
 import 'package:tunescape/core/state.dart';
 import 'package:tunescape/widget/playback.dart';
 import 'package:tunescape/widget/playlist.dart';
+import 'package:tunescape/widget/settings.dart';
 import 'package:tunescape/widget/status.dart';
 
 class MusicPlayer extends StatefulWidget {
@@ -21,7 +22,8 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
   late AnimationController _ticker;
 
   Future<void> _pickAndPlayAudio() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio);
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: supportedAudiofileExtensions);
 
     if (result != null) {
       playbackManager.playFile(result.files.single.path!);
@@ -32,7 +34,7 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
   Future<void> _loadPlaylist() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['m3u8'],
+      allowedExtensions: supportedPlaylistExtensions,
     );
 
     if (result != null) {
@@ -44,6 +46,26 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
     } else {
       // User canceled the picker
     }
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Settings'),
+          content: SettingsWidget(), // You can add more widgets here as per your requirements
+          actions: [
+            TextButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -73,57 +95,49 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    String titleText = playbackManager.isPlaying ? playbackManager.currentFileName : 'tunescape';
-
     return Scaffold(
-        appBar: AppBar(
-          title: Text(titleText),
-          actions: [IconButton(icon: const Icon(Icons.add), onPressed: () {})],
-        ),
-        drawer: createDrawer(context),
-        body: Column(
-          children: [
-            Expanded(
-                child: Row(
-              children: [
-                Container(
-                    width: leftSectionWidth,
-                    color: const Color.fromARGB(255, 15, 15, 15),
-                    child: PlaybackStatusWidget()),
-                Expanded(
-                    flex: 2,
-                    child: Column(
-                      children: [PlaylistWidget()],
-                    ))
-              ],
-            )),
-            Container(
-              height: bottomSectionHeight,
-              color: const Color.fromARGB(255, 20, 20, 20),
-              child: PlaybackWidget(),
-            )
-          ],
-        ));
+      body: Column(
+        children: [
+          Expanded(
+              child: Row(
+            children: [
+              Container(
+                  width: leftSectionWidth,
+                  color: Color.fromARGB(255, 10, 10, 10),
+                  child: Scaffold(
+                      appBar: AppBar(),
+                      drawer: createDrawer(context),
+                      body: PlaybackStatusWidget())),
+              VerticalDivider(
+                width: 2,
+                color: Colors.grey[850],
+              ),
+              Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [PlaylistWidget()],
+                  ))
+            ],
+          )),
+          Divider(
+            height: 2,
+            color: Colors.grey[850],
+          ),
+          Container(
+            height: bottomSectionHeight,
+            color: Colors.black,
+            child: PlaybackWidget(),
+          )
+        ],
+      ),
+    );
   }
 
   Drawer createDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         children: [
-          const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.black,
-              ),
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                Text(
-                  'tunescape',
-                  style: TextStyle(fontSize: 32, color: Colors.red),
-                ),
-                Text(
-                  "0.1.1a",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                )
-              ])),
+          createDrawerHeader(context),
           ListTile(
             title: const Text('Open audio file'),
             onTap: () {
@@ -138,8 +152,32 @@ class _MusicPlayerState extends State<MusicPlayer> with TickerProviderStateMixin
               Navigator.pop(context);
             },
           ),
+          ListTile(
+            title: const Text('Settings'),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              _showSettingsDialog(context); // Open the settings dialog
+            },
+          ),
         ],
       ),
     );
+  }
+
+  DrawerHeader createDrawerHeader(BuildContext context) {
+    return DrawerHeader(
+        decoration: BoxDecoration(
+          color: Colors.black,
+        ),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text(
+            'tunescape',
+            style: TextStyle(fontSize: 32, color: accentColorNotifier.colors.accent),
+          ),
+          Text(
+            "0.1.1a",
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          )
+        ]));
   }
 }

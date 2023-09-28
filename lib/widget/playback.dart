@@ -63,9 +63,9 @@ class _PlaybackWidgetState extends State<PlaybackWidget> {
                     thumbShape: const RoundSliderThumbShape(
                         enabledThumbRadius: 8.0), // Adjust to your preference
                     trackHeight: 2.0, // Adjust to your preference
-                    activeTrackColor: Colors.red,
+                    activeTrackColor: themeManager.colors.swatch,
                     inactiveTrackColor: Colors.grey[600],
-                    thumbColor: Colors.red,
+                    thumbColor: themeManager.colors.accent,
                   ),
                   child: Slider(
                     min: 0,
@@ -94,9 +94,9 @@ class _PlaybackWidgetState extends State<PlaybackWidget> {
                         thumbShape: const RoundSliderThumbShape(
                             enabledThumbRadius: 5.0), // Adjust to your preference
                         trackHeight: 2.0, // Adjust to your preference
-                        activeTrackColor: Colors.red,
+                        activeTrackColor: themeManager.colors.swatch,
                         inactiveTrackColor: Colors.grey[800],
-                        thumbColor: Colors.red,
+                        thumbColor: themeManager.colors.accent,
                       ),
                       child: Slider(
                         min: 0,

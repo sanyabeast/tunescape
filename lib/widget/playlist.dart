@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tunescape/core/playback.dart';
+import 'package:tunescape/core/state.dart';
 
 import '../core/tools.dart';
 
@@ -36,16 +37,16 @@ class _PlaylistWidgetState extends State<PlaylistWidget> {
         itemBuilder: (context, index) {
           return ListTile(
             tileColor: index == playbackManager.currentPlaylistItemIndex
-                ? Colors.red[900]
+                ? themeManager.colors.swatch.withOpacity(0.33)
                 : (index % 2 == 0
-                    ? Color.fromARGB(66, 72, 72, 72)
+                    ? const Color.fromARGB(66, 40, 40, 40)
                     : null), // Highlight the selected item with a different color
             title: Text(getFileName(playbackManager.playlist[index])),
             subtitle: const Text(
               'M4A • 44 kHz, 129 kbps, Details...',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
-            trailing: Text('1:30:00'),
+            trailing: const Text('1:30:00'),
             onTap: () => playbackManager.setPlaylistIndex(index),
           );
         },
