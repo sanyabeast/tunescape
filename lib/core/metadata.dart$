@@ -1,0 +1,37 @@
+import 'dart:io';
+
+import 'package:mime/mime.dart';
+import 'package:metadata_god/metadata_god.dart';
+import 'package:tunescape/core/tools.dart';
+
+class TsMetadata {
+  late String filePath;
+  late String fullTitle;
+  TsMetadata(this.filePath) {}
+
+  init() async {
+    print("init metadata for $filePath");
+    fullTitle = getFileName(filePath);
+    final mimeType = lookupMimeType(filePath);
+    final metadata = await MetadataGod.readMetadata(file: filePath);
+    print(metadata);
+  }
+}
+
+class TsMetadataManager {
+  static TsMetadataManager instance = TsMetadataManager();
+
+  Map<String, TsMetadata> _cachedMetadata = {};
+
+  getMetadata(String filePath) async {
+    if (_cachedMetadata.containsKey(filePath)) {
+      return _cachedMetadata[filePath];
+    } else {
+      _cachedMetadata[filePath] = TsMetadata(filePath);
+      await _cachedMetadata[filePath]!.init();
+      return _cachedMetadata[filePath];
+    }
+  }
+}
+
+TsMetadataManager metadataManager = TsMetadataManager.instance;

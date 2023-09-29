@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:metadata_god/metadata_god.dart';
 import 'package:tunescape/core/playback.dart';
 import 'package:tunescape/core/state.dart';
 import 'package:tunescape/widget/player.dart';
@@ -10,6 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await preferences.init();
   await themeManager.init();
+  // MetadataGod.initialize();
   await PlaybackManager.instance.init();
   await DesktopWindow.setMinWindowSize(const Size(800, 600));
   runApp(TuneScape());
