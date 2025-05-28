@@ -1,16 +1,60 @@
-# tunescape
+# TuneScape
 
-A new Flutter project.
+A modern, cross-platform music player built with Flutter that provides a clean and intuitive interface for audio playback.
 
-## Getting Started
+![TuneScape](https://github.com/sanyabeast/tunescape/raw/main/assets/preview.png)
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- 🎵 Play local audio files with a sleek, modern UI
+- 📋 Create and manage playlists
+- 🔄 Shuffle and loop playback modes
+- 🎨 Customizable accent colors
+- 💻 Cross-platform support (Windows, macOS, Linux)
+- 🖥️ Responsive design with adjustable layout
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Prerequisites
+- Flutter SDK (>=3.0.6)
+- Dart SDK (>=3.0.6)
+
+### Setup
+1. Clone the repository
+   ```
+   git clone https://github.com/sanyabeast/tunescape.git
+   ```
+2. Navigate to the project directory
+   ```
+   cd tunescape
+   ```
+3. Install dependencies
+   ```
+   flutter pub get
+   ```
+4. Run the application
+   ```
+   flutter run
+   ```
+
+## Usage
+
+- Open audio files through the side menu
+- Create and load playlists
+- Control playback with the bottom control panel
+- Customize appearance through the settings dialog
+
+## Dependencies
+
+- just_audio: Audio playback engine
+- file_picker: File selection dialog
+- shared_preferences: Local settings storage
+- desktop_window: Window size management
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Version
+
+Current version: 0.1.1a
